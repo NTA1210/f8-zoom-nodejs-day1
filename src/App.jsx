@@ -6,6 +6,10 @@ function App() {
   const [value, setValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [todo, setTodo] = useState(null);
+  const [bypass, setBypass] = useState(
+    "https://api-gateway.fullstack.edu.vn/api/analytics"
+  );
+  const [bypassData, setBypassData] = useState(null);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -13,7 +17,6 @@ function App() {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks`);
         const data = await res.json();
         setTodos(data.data);
-        console.log(res);
       } catch (err) {
         console.log(err);
       }
@@ -99,8 +102,22 @@ function App() {
     }
   };
 
+  const handleGetByPassData = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/bypass-cors?url=${bypass}`
+      );
+      const data = await res.json();
+      console.log(data);
+
+      setBypassData(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center gap-2">
       <div className="w-[300px] h-[400px] border rounded-md shadow-lg">
         <header className="text-2xl font-semibold text-center p-2">
           Todo App
@@ -174,6 +191,30 @@ function App() {
           </div>
         </div>
       )}
+
+      <div className="w-100 p-2 border rounded-md">
+        <h2 className="font-semibold text-center">BYPASS CORS</h2>
+        <div className="flex justify-center items-center gap-1">
+          <input
+            className="rounded-full flex-1 border px-2 py-1"
+            value={bypass}
+            onInput={(e) => setBypass(e.target.value)}
+            placeholder="enter url to get value"
+          />
+          <button
+            className="px-2 py-1 rounded-full bg-gray-600 text-white hover:cursor-pointer"
+            onClick={handleGetByPassData}
+          >
+            Get
+          </button>
+        </div>
+
+        <div className="body h-full border-t border-gray-300 mt-2 min-h-50 max-h-80 p-2 overflow-x-hidden overflow-y-auto whitespace-pre-wrap wrap-break-word">
+          {bypassData && bypassData?.isJSON
+            ? JSON.stringify(bypassData?.data, null, 2)
+            : bypassData?.data}
+        </div>
+      </div>
     </div>
   );
 }
